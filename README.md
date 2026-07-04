@@ -1,59 +1,173 @@
-# MOMO KINGS - Luxury Restaurant Management & Online Food Ordering System
+🍽️ MOMO KINGS
 
-Welcome to **Momo Kings**, a premium, production-ready full-stack web application designed for a luxury 5-star fine-dining restaurant. The interface draws elegant inspiration from Marriott, Taj, and ITC properties using dark mode overlays, gold gradients, glassmorphism cards, and fluid animations.
+Luxury Restaurant Management & Online Food Ordering System
 
----
+<p align="center">
+A modern, full-stack restaurant management platform built with <strong>Python, Django, Django REST Framework, HTML, CSS, JavaScript, Bootstrap, and SQLite</strong>. The application provides an elegant dining experience with online ordering, secure payments, QR-based menu access, real-time order tracking, and an advanced admin dashboard.
+</p>---
 
-## Technical Stack
-- **Backend:** Python 3.13, Django 5.x, Django REST Framework, SQLite (Default with MySQL option), Pillow, Razorpay SDK, ReportLab (PDF), Qrcode (Dynamic QR generator)
-- **Frontend:** HTML5, CSS3 (Custom Luxury variables, responsive grids), Bootstrap 5, Javascript, AJAX, FontAwesome Icons, Google Fonts (Playfair Display / Outfit)
+🚀 Project Overview
 
----
+MOMO KINGS is a production-ready web application developed to automate restaurant operations while delivering a premium customer experience.
 
-## Features
-1. **Dynamic Menu System:** Organized by categories with Veg/Non-Veg badges, spice intensities, ratings, calories, prep time, price sorting, and voice search.
-2. **Slide-Out Shopping Cart:** AJAX-powered slide cart drawer calculating GST (5%), Packing Fees (Rs. 30), and coupons.
-3. **Interactive Checkout & Dining Modes:** Choice of Delivery (with address field), Takeaway, or Dine-In (reveals conditional Table Number field).
-4. **Secure Payment Gateways:** Live Razorpay checkout script callback, Mock UPI payment triggers, and Cash on Delivery support.
-5. **Interactive Order Tracking:** Dynamic visual progress line tracking state changes (Pending -> Confirmed -> Cooking -> Ready -> Out For Delivery -> Enjoyed).
-6. **Luxury Admin Dashboard:** Metric logs detailing Today's Sales, Monthly Volume, Profit Margin, Live Orders, popular items, PDF Reports, and CSV logs download.
-7. **Dynamic QR Code Menu:** Automatic QR code generator view streaming a PNG pointing to the `/menu/` page.
-8. **Restful API Console:** Fully integrated Django REST Framework ViewSets for categories, menu, users, reviews, carts, and transactions.
-9. **Loyalty Rewards & Wishlists:** Heart-toggle wishlist trackers and 10% cash-back loyalty points accumulation.
-10. **Voice Search Integration:** Web Speech recognition for hands-free menu querying.
+The system allows customers to browse the menu, place orders, make payments, track their orders in real time, and receive digital invoices. Restaurant administrators can efficiently manage menu items, orders, customers, analytics, reports, and business operations from a centralized dashboard.
 
 ---
 
-## Installation & Setup
+✨ Key Features
 
-1. **Install Dependencies:**
-   ```bash
-   pip install -r requirements.txt
-   ```
+👨‍🍳 Customer Features
 
-2. **Execute Database Migrations:**
-   *(Note: Categories, FoodItems, and Coupons are automatically seeded during migration via custom RunPython steps!)*
-   ```bash
-   python restaurant_management/manage.py migrate
-   ```
+- Elegant and responsive user interface
+- Dynamic food menu with categories
+- Veg & Non-Veg indicators
+- Shopping cart with live price calculation
+- GST and packing charge calculation
+- Coupon and discount support
+- Delivery, Takeaway & Dine-In options
+- Wishlist functionality
+- Voice Search
+- Secure checkout process
+- Razorpay payment integration
+- Cash on Delivery option
+- PDF invoice generation
+- Live order tracking
+- Loyalty reward points
 
-3. **Create Administrative Superuser:**
-   ```bash
-   python restaurant_management/manage.py createsuperuser
-   ```
+👨‍💼 Admin Features
 
-4. **Spin Up Server:**
-   ```bash
-   python restaurant_management/manage.py runserver
-   ```
-   Navigate to: `http://127.0.0.1:8000/`
+- Secure Admin Login
+- Restaurant Dashboard
+- Order Management
+- Customer Management
+- Menu Management
+- Sales Analytics
+- Daily & Monthly Reports
+- CSV Export
+- PDF Report Generation
+- QR Code Menu Generator
+
+🔗 REST API
+
+- Categories API
+- Food Items API
+- Users API
+- Reviews API
+- Cart API
+- Orders API
+- Transactions API
 
 ---
 
-## Testing Simulated Workflows
-- **Accounts:** Register a user at `/accounts/signup/`.
-- **Cart/Checkout:** Add items from the Menu, apply coupon `ROYAL10` or `MOMOKINGS20`, and choose delivery type.
-- **Mock Payment:** Choose Razorpay or select Cash on Delivery.
-- **Invoice:** Download the branded PDF invoice generated via `reportlab` at the payment success page.
-- **Track Status:** Open the live tracking page, scroll to the *Developer Simulation Panel*, and click order status levels to watch the progress bar animate in real-time.
-- **Admin Dashboard:** Log in with superuser credentials, go to `/dashboard/` to view analytics, change statuses, and download CSV/PDF logs.
+🛠️ Technology Stack
+
+Backend
+
+- Python 3
+- Django 5
+- Django REST Framework
+- SQLite
+- Pillow
+- Razorpay SDK
+- ReportLab
+- QRCode
+
+Frontend
+
+- HTML5
+- CSS3
+- Bootstrap 5
+- JavaScript
+- AJAX
+- Font Awesome
+- Google Fonts
+
+---
+
+📂 Project Highlights
+
+- Premium Luxury UI Design
+- Glassmorphism Components
+- Fully Responsive Layout
+- Modern Animations
+- QR Code Based Digital Menu
+- Real-Time Order Status Tracking
+- RESTful API Architecture
+- Secure Authentication
+- Production Ready Structure
+- Clean & Maintainable Code
+
+---
+
+⚙️ Installation
+
+git clone <repository-url>
+cd MOMO-KINGS
+pip install -r requirements.txt
+python manage.py migrate
+python manage.py createsuperuser
+python manage.py runserver
+
+Open your browser:
+
+http://127.0.0.1:8000/
+
+---
+
+🧪 Test Workflow
+
+1. Register a new customer account.
+2. Browse the restaurant menu.
+3. Add food items to the cart.
+4. Apply available coupons.
+5. Select Delivery, Takeaway, or Dine-In.
+6. Complete payment using Razorpay or Cash on Delivery.
+7. Download the generated invoice.
+8. Track the order status in real time.
+9. Login as Admin to manage orders and analytics.
+
+---
+
+📈 Future Enhancements
+
+- AI Food Recommendation
+- Table Reservation System
+- Live Kitchen Display
+- Email & SMS Notifications
+- Multi-Restaurant Support
+- Customer Feedback Analytics
+- Inventory Management
+- Employee Management
+- Mobile Application
+
+---
+
+👩‍💻 Developer
+
+Ramya Kaviya
+
+Python Full Stack Developer
+
+Skills
+
+- Python
+- Django
+- Django REST Framework
+- HTML5
+- CSS3
+- Bootstrap
+- JavaScript
+- SQL
+- Git & GitHub
+
+---
+
+⭐ Project Outcome
+
+This project demonstrates real-world full-stack development skills including frontend development, backend architecture, REST API implementation, authentication, payment integration, database management, responsive UI design, reporting, and deployment-ready application structure.
+
+It reflects the complete workflow of a modern restaurant management platform and showcases practical software engineering practices suitable for production environments.
+
+---
+
+⭐ If you found this project useful, don't forget to Star the repository.
