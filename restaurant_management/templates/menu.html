@@ -63,7 +63,7 @@
                 <div class="col-md-6 col-lg-4">
                     <div class="glass-card food-card">
                         <div class="food-card-img-container">
-                            <img src="{{ item.image.url|default:item.image_url|default:'https://images.unsplash.com/photo-1534422298391-e4f8c172dddb?q=80&w=600&auto=format&fit=crop' }}" alt="{{ item.name }}">
+                            {% comment %}<img src="{{ item.image.url|default:item.image_url|default:'https://images.unsplash.com/photo-1534422298391-e4f8c172dddb?q=80&w=600&auto=format&fit=crop' }}" alt="{{ item.name }}">{% comment %}
                             <span class="badge-veg-nonveg {% if item.veg_non_veg == 'Veg' %}badge-veg{% else %}badge-nonveg{% endif %}">
                                 {{ item.veg_non_veg }}
                             </span>
