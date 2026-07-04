@@ -1,0 +1,278 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Momo Kings | Royal Menu Selection{% endblock %}
+
+{% block content %}
+<div class="row mb-5">
+    <div class="col-lg-3">
+        <!-- Filters & Category Panel -->
+        <div class="glass-card p-4 border-gold sticky-top mb-4" style="top: 100px; z-index: 10;">
+            <h4 class="text-gold mb-3 border-bottom border-gold pb-2"><i class="fa-solid fa-filter me-2"></i>Royal Filters</h4>
+            
+            <!-- Category links list -->
+            <div class="mb-4">
+                <label class="text-white small fw-bold mb-2">Category</label>
+                <div class="list-group">
+                    <a href="?q={{ query }}&veg={{ veg_filter }}&sort={{ sort_by }}" class="list-group-item list-group-item-action bg-transparent text-white border-0 py-2 ps-0 {% if not selected_category %}text-gold fw-bold{% endif %}">
+                        All Platters
+                    </a>
+                    {% for cat in categories %}
+                    <a href="?category={{ cat.slug }}&q={{ query }}&veg={{ veg_filter }}&sort={{ sort_by }}" class="list-group-item list-group-item-action bg-transparent text-white border-0 py-2 ps-0 {% if selected_category == cat.slug %}text-gold fw-bold{% endif %}">
+                        {{ cat.name }}
+                    </a>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Veg/Non-Veg Badges Filter -->
+            <div class="mb-4">
+                <label class="text-white small fw-bold mb-2">Dietary preference</label>
+                <div class="d-flex">
+                    <a href="?category={{ selected_category }}&q={{ query }}&sort={{ sort_by }}" class="btn btn-sm {% if not veg_filter %}btn-gold{% else %}btn-outline-gold{% endif %} rounded-pill me-2 px-3">All</a>
+                    <a href="?category={{ selected_category }}&q={{ query }}&veg=Veg&sort={{ sort_by }}" class="btn btn-sm {% if veg_filter == 'Veg' %}btn-gold{% else %}btn-outline-gold{% endif %} rounded-pill me-2 px-3">Veg</a>
+                    <a href="?category={{ selected_category }}&q={{ query }}&veg=Non-Veg&sort={{ sort_by }}" class="btn btn-sm {% if veg_filter == 'Non-Veg' %}btn-gold{% else %}btn-outline-gold{% endif %} rounded-pill px-3">Non-Veg</a>
+                </div>
+            </div>
+
+            <!-- Sort By selection -->
+            <div>
+                <label class="text-white small fw-bold mb-2">Sort By</label>
+                <select onchange="location.href=this.value" class="form-select bg-transparent text-white border-gold rounded-pill">
+                    <option value="?category={{ selected_category }}&q={{ query }}&veg={{ veg_filter }}&sort=" class="text-dark" {% if not sort_by %}selected{% endif %}>Standard</option>
+                    <option value="?category={{ selected_category }}&q={{ query }}&veg={{ veg_filter }}&sort=price_asc" class="text-dark" {% if sort_by == 'price_asc' %}selected{% endif %}>Price: Low to High</option>
+                    <option value="?category={{ selected_category }}&q={{ query }}&veg={{ veg_filter }}&sort=price_desc" class="text-dark" {% if sort_by == 'price_desc' %}selected{% endif %}>Price: High to Low</option>
+                    <option value="?category={{ selected_category }}&q={{ query }}&veg={{ veg_filter }}&sort=rating" class="text-dark" {% if sort_by == 'rating' %}selected{% endif %}>Highest Rating</option>
+                    <option value="?category={{ selected_category }}&q={{ query }}&veg={{ veg_filter }}&sort=calories" class="text-dark" {% if sort_by == 'calories' %}selected{% endif %}>Lowest Calories</option>
+                </select>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-9">
+        <!-- Header status -->
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2 class="text-white mb-0">Menu Platters</h2>
+            <span class="text-gray small">{{ items|length }} Delicacies Found</span>
+        </div>
+
+        <!-- Food cards grid -->
+        <div class="row g-4">
+            {% if items %}
+                {% for item in items %}
+                <div class="col-md-6 col-lg-4">
+                    <div class="glass-card food-card">
+                        <div class="food-card-img-container">
+                            <img src="{{ item.image.url|default:item.image_url|default:'https://images.unsplash.com/photo-1534422298391-e4f8c172dddb?q=80&w=600&auto=format&fit=crop' }}" alt="{{ item.name }}">
+                            <span class="badge-veg-nonveg {% if item.veg_non_veg == 'Veg' %}badge-veg{% else %}badge-nonveg{% endif %}">
+                                {{ item.veg_non_veg }}
+                            </span>
+                            
+                            <!-- Wishlist / Favorite heart -->
+                            <div class="favorite-heart {% if request.user.is_authenticated and item in request.user.wishlist.items.all %}active{% endif %}" onclick="toggleWishlist(this, {{ item.id }})">
+                                <i class="fa-solid fa-heart"></i>
+                            </div>
+                        </div>
+                        
+                        <div class="p-3 d-flex flex-column flex-grow-1">
+                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                <h5 class="text-white mb-0">{{ item.name }}</h5>
+                                <span class="text-warning small text-nowrap"><i class="fa-solid fa-star me-1"></i>{{ item.rating }}</span>
+                            </div>
+                            <p class="text-gray small mb-3 flex-grow-1">{{ item.description|truncatewords:8 }}</p>
+                            
+                            <div class="d-flex justify-content-between align-items-center small text-gray mb-3">
+                                <span><i class="fa-regular fa-clock me-1"></i>{{ item.prep_time }}m</span>
+                                <span><i class="fa-solid fa-fire me-1"></i>{{ item.calories }} cal</span>
+                                <span class="text-danger">
+                                    {% if item.spice_level == 1 %}<i class="fa-solid fa-pepper-hot"></i>
+                                    {% elif item.spice_level == 2 %}<i class="fa-solid fa-pepper-hot"></i><i class="fa-solid fa-pepper-hot"></i>
+                                    {% elif item.spice_level >= 3 %}<i class="fa-solid fa-pepper-hot"></i><i class="fa-solid fa-pepper-hot"></i><i class="fa-solid fa-pepper-hot"></i>
+                                    {% else %}<span class="text-secondary">Mild</span>{% endif %}
+                                </span>
+                            </div>
+
+                            <div class="d-flex justify-content-between align-items-center border-top border-secondary pt-3 mt-auto">
+                                <span class="text-gold fw-bold fs-5">Rs. {{ item.price }}</span>
+                                <div class="d-flex">
+                                    <button class="btn btn-sm btn-outline-gold me-2 rounded-pill px-3" onclick="triggerQuickView({{ item.id }})"><i class="fa-regular fa-eye"></i></button>
+                                    <button class="btn btn-sm btn-gold rounded-pill px-3" onclick="addToCart({{ item.id }})"><i class="fa-solid fa-cart-plus me-1"></i>Add</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            {% else %}
+                <div class="col-12 text-center py-5">
+                    <i class="fa-solid fa-circle-question fa-3x text-gold mb-3"></i>
+                    <h4 class="text-white">No items found matching your filters.</h4>
+                    <p class="text-gray">Please try adjusting your filters or search query.</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Quick View Modal -->
+<div class="modal fade" id="quickViewModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-content glass-card border-gold p-4 text-white" style="background: rgba(11,11,12,0.98);">
+      <div class="modal-header border-0 pb-0 justify-content-end">
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body p-0">
+        <div class="row g-4">
+            <div class="col-md-5">
+                <img id="qv-image" src="" alt="" class="img-fluid rounded border border-secondary w-100" style="object-fit: cover; height: 300px;">
+            </div>
+            <div class="col-md-7 d-flex flex-column justify-content-between">
+                <div>
+                    <div class="d-flex align-items-center mb-2">
+                        <h3 class="text-gold mb-0 me-3" id="qv-name">Item Name</h3>
+                        <span class="badge" id="qv-veg-badge">Veg</span>
+                    </div>
+                    <div class="d-flex align-items-center mb-3">
+                        <span class="text-warning me-3"><i class="fa-solid fa-star me-1"></i><span id="qv-rating">4.5</span></span>
+                        <span class="text-gray small me-3"><i class="fa-regular fa-clock me-1"></i><span id="qv-time">15</span> mins</span>
+                        <span class="text-gray small"><i class="fa-solid fa-fire me-1"></i><span id="qv-calories">300</span> cal</span>
+                    </div>
+                    <p class="text-gray small" id="qv-description">Description goes here...</p>
+                </div>
+                <div class="border-top border-secondary pt-3 mt-4">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <span class="text-white small">Spice Intensity: <span id="qv-spices" class="text-danger ms-1"></span></span>
+                        <span class="text-gold fw-bold fs-4">Rs. <span id="qv-price">0.00</span></span>
+                    </div>
+                    <div class="d-flex align-items-center">
+                        <div class="qty-control me-3" style="padding: 6px 15px;">
+                            <button class="qty-btn" onclick="adjustQvQty(-1)">-</button>
+                            <span class="mx-3 text-white" id="qv-qty">1</span>
+                            <button class="qty-btn" onclick="adjustQvQty(1)">+</button>
+                        </div>
+                        <button class="btn btn-gold rounded-pill px-4 flex-grow-1" id="qv-add-btn"><i class="fa-solid fa-cart-plus me-2"></i>Add to Cart</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    let activeQvItem = null;
+    let qvQty = 1;
+
+    // Toggle user wishlist
+    function toggleWishlist(element, itemId) {
+        {% if not request.user.is_authenticated %}
+            location.href = "{% url 'login' %}";
+            return;
+        {% endif %}
+
+        const formData = new FormData();
+        formData.append('item_id', itemId);
+
+        fetch("{% url 'toggle_wishlist_ajax' %}", {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': '{{ csrf_token }}'
+            },
+            body: formData
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                if (data.added) {
+                    element.classList.add('active');
+                } else {
+                    element.classList.remove('active');
+                }
+            }
+        });
+    }
+
+    // Add to Cart via AJAX
+    function addToCart(itemId, qty = 1) {
+        {% if not request.user.is_authenticated %}
+            location.href = "{% url 'login' %}";
+            return;
+        {% endif %}
+
+        const formData = new FormData();
+        formData.append('food_id', itemId);
+        formData.append('quantity', qty);
+
+        fetch("{% url 'add_to_cart_ajax' %}", {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': '{{ csrf_token }}'
+            },
+            body: formData
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                // Update badge and open side cart
+                document.getElementById('cart-badge').innerText = data.cart_count;
+                document.getElementById('slide-cart').classList.add('active');
+                loadCartItems();
+            }
+        });
+    }
+
+    // Trigger Quick View Modal
+    function triggerQuickView(itemId) {
+        fetch(`/menu/item/${itemId}/`)
+            .then(res => res.json())
+            .then(data => {
+                activeQvItem = data;
+                qvQty = 1;
+                document.getElementById('qv-qty').innerText = qvQty;
+                
+                document.getElementById('qv-name').innerText = data.name;
+                document.getElementById('qv-description').innerText = data.description;
+                document.getElementById('qv-price').innerText = parseFloat(data.price).toFixed(2);
+                document.getElementById('qv-image').src = data.image_url;
+                document.getElementById('qv-rating').innerText = data.rating.toFixed(1);
+                document.getElementById('qv-time').innerText = data.prep_time;
+                document.getElementById('qv-calories').innerText = data.calories;
+                
+                // Diet Badge
+                const dietBadge = document.getElementById('qv-veg-badge');
+                dietBadge.innerText = data.veg_non_veg;
+                if (data.veg_non_veg === 'Veg') {
+                    dietBadge.className = 'badge bg-veg';
+                } else {
+                    dietBadge.className = 'badge bg-nonveg';
+                }
+
+                // Spice peppers
+                const spiceContainer = document.getElementById('qv-spices');
+                let spiceHtml = '';
+                for (let i = 0; i < data.spice_level; i++) {
+                    spiceHtml += '<i class="fa-solid fa-pepper-hot me-1"></i>';
+                }
+                spiceContainer.innerHTML = spiceHtml || '<span class="text-secondary">Mild</span>';
+
+                // Add button click bind
+                document.getElementById('qv-add-btn').onclick = () => {
+                    addToCart(data.id, qvQty);
+                    bootstrap.Modal.getInstance(document.getElementById('quickViewModal')).hide();
+                };
+
+                const modal = new bootstrap.Modal(document.getElementById('quickViewModal'));
+                modal.show();
+            });
+    }
+
+    function adjustQvQty(change) {
+        qvQty = Math.max(1, qvQty + change);
+        document.getElementById('qv-qty').innerText = qvQty;
+    }
+</script>
+{% endblock %}

@@ -1,0 +1,160 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Momo Kings | Royal Dashboard Console{% endblock %}
+
+{% block content %}
+<!-- Luxury Statistics Cards -->
+<div class="row g-4 mb-5">
+    <div class="col-md-3">
+        <div class="glass-card p-4 border-gold text-white text-center">
+            <span class="text-gold small text-uppercase" style="letter-spacing: 1px;">Today's Sales</span>
+            <h2 class="mt-2 mb-0 fw-bold">Rs. {{ today_sales|floatformat:2 }}</h2>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="glass-card p-4 border-gold text-white text-center">
+            <span class="text-gold small text-uppercase" style="letter-spacing: 1px;">Monthly Volume</span>
+            <h2 class="mt-2 mb-0 fw-bold">Rs. {{ monthly_sales|floatformat:2 }}</h2>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="glass-card p-4 border-gold text-white text-center">
+            <span class="text-gold small text-uppercase" style="letter-spacing: 1px;">Total Revenue</span>
+            <h2 class="mt-2 mb-0 fw-bold">Rs. {{ total_revenue|floatformat:2 }}</h2>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="glass-card p-4 border-gold text-white text-center">
+            <span class="text-gold small text-uppercase" style="letter-spacing: 1px;">Estimated Profit</span>
+            <h2 class="mt-2 mb-0 fw-bold text-success">Rs. {{ total_profit|floatformat:2 }}</h2>
+        </div>
+    </div>
+</div>
+
+<!-- Exports and Controls -->
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h3 class="text-white mb-0"><i class="fa-solid fa-chart-line me-2 text-gold"></i>Sales & Order Logs</h3>
+    <div>
+        <a href="{% url 'export_sales_csv' %}" class="btn btn-sm btn-outline-gold rounded-pill px-3 me-2"><i class="fa-solid fa-file-csv me-1"></i>Export CSV</a>
+        <a href="{% url 'export_sales_pdf' %}" class="btn btn-sm btn-gold rounded-pill px-3"><i class="fa-solid fa-file-pdf me-1"></i>Download PDF Report</a>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Live Orders Table -->
+    <div class="col-lg-8 mb-4">
+        <div class="glass-card p-4 border-gold text-white">
+            <h5 class="text-gold mb-4 border-bottom border-gold pb-2">Active Culinary Orders</h5>
+            
+            <div class="table-responsive">
+                <table class="table table-dark table-hover align-middle small mb-0">
+                    <thead>
+                        <tr class="text-gold">
+                            <th>Order ID</th>
+                            <th>Customer</th>
+                            <th>Type</th>
+                            <th>Total</th>
+                            <th>Status Control</th>
+                            <th>Created At</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% if orders %}
+                            {% for order in orders %}
+                            <tr>
+                                <td><b>#{{ order.id }}</b></td>
+                                <td>{{ order.customer_name }}</td>
+                                <td>{{ order.delivery_type }}</td>
+                                <td>Rs. {{ order.grand_total }}</td>
+                                <td>
+                                    <!-- Dynamic status selector -->
+                                    <select onchange="updateOrderStatus({{ order.id }}, this.value)" class="form-select form-select-sm bg-transparent text-white border-secondary rounded">
+                                        <option value="Pending" class="text-dark" {% if order.status == 'Pending' %}selected{% endif %}>Pending</option>
+                                        <option value="Confirmed" class="text-dark" {% if order.status == 'Confirmed' %}selected{% endif %}>Confirmed</option>
+                                        <option value="Preparing" class="text-dark" {% if order.status == 'Preparing' %}selected{% endif %}>Preparing</option>
+                                        <option value="Ready" class="text-dark" {% if order.status == 'Ready' %}selected{% endif %}>Ready</option>
+                                        <option value="Out For Delivery" class="text-dark" {% if order.status == 'Out For Delivery' %}selected{% endif %}>Out For Delivery</option>
+                                        <option value="Delivered" class="text-dark" {% if order.status == 'Delivered' %}selected{% endif %}>Delivered</option>
+                                        <option value="Completed" class="text-dark" {% if order.status == 'Completed' %}selected{% endif %}>Completed</option>
+                                        <option value="Cancelled" class="text-dark" {% if order.status == 'Cancelled' %}selected{% endif %}>Cancelled</option>
+                                    </select>
+                                </td>
+                                <td>{{ order.created_at|date:"d-b H:i" }}</td>
+                            </tr>
+                            {% endfor %}
+                        {% else %}
+                            <tr>
+                                <td colspan="6" class="text-center text-gray py-4">No active orders logged.</td>
+                            </tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Side Insights -->
+    <div class="col-lg-4">
+        <!-- Best Sellers -->
+        <div class="glass-card p-4 border-gold text-white mb-4">
+            <h5 class="text-gold mb-3 border-bottom border-gold pb-2">Best Selling Food</h5>
+            <ul class="list-unstyled mb-0 small">
+                {% if best_selling_items %}
+                    {% for item in best_selling_items %}
+                    <li class="d-flex justify-content-between mb-2">
+                        <span>{{ item.food_item__name }}</span>
+                        <span class="text-gold">{{ item.total_qty }} units</span>
+                    </li>
+                    {% endfor %}
+                {% else %}
+                    <li class="text-gray py-2">No transaction data yet.</li>
+                {% endif %}
+            </ul>
+        </div>
+
+        <!-- Best Categories -->
+        <div class="glass-card p-4 border-gold text-white">
+            <h5 class="text-gold mb-3 border-bottom border-gold pb-2">Popular Categories</h5>
+            <ul class="list-unstyled mb-0 small">
+                {% if best_selling_categories %}
+                    {% for cat in best_selling_categories %}
+                    <li class="d-flex justify-content-between mb-2">
+                        <span>{{ cat.food_item__category__name }}</span>
+                        <span class="text-gold">{{ cat.total_qty }} units sold</span>
+                    </li>
+                    {% endfor %}
+                {% else %}
+                    <li class="text-gray py-2">No transaction data yet.</li>
+                {% endif %}
+            </ul>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    function updateOrderStatus(orderId, newStatus) {
+        const formData = new FormData();
+        formData.append('status', newStatus);
+
+        fetch(`/dashboard/order/${orderId}/update/`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': '{{ csrf_token }}'
+            },
+            body: formData
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                // Show notification alert or success feedback
+                alert(data.message);
+            } else {
+                alert(data.message);
+            }
+        });
+    }
+</script>
+{% endblock %}

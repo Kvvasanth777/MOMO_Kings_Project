@@ -1,0 +1,181 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Momo Kings | Checkout Platter{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-7 mb-4">
+        <!-- Customer Details & Preferences -->
+        <div class="glass-card p-4 border-gold text-white">
+            <h3 class="text-gold mb-4 border-bottom border-gold pb-2"><i class="fa-regular fa-id-card me-2"></i>Royal Order Details</h3>
+            
+            <form action="{% url 'checkout' %}" method="POST" id="checkout-form">
+                {% csrf_token %}
+                
+                <div class="row g-3 mb-4">
+                    <div class="col-md-6">
+                        <label class="small text-gray mb-1">Customer Name</label>
+                        <input type="text" name="name" required class="form-control bg-transparent text-white border-gold" value="{{ request.user.username }}">
+                    </div>
+                    <div class="col-md-6">
+                        <label class="small text-gray mb-1">Phone Number</label>
+                        <input type="text" name="phone" required class="form-control bg-transparent text-white border-gold" value="{{ request.user.phone_number|default:'' }}">
+                    </div>
+                    <div class="col-12">
+                        <label class="small text-gray mb-1">Email Address</label>
+                        <input type="email" name="email" required class="form-control bg-transparent text-white border-gold" value="{{ request.user.email }}">
+                    </div>
+                </div>
+
+                <!-- Delivery Options Toggle -->
+                <div class="mb-4">
+                    <label class="small text-gray mb-2 d-block">Service Mode</label>
+                    <div class="btn-group w-100" role="group">
+                        <input type="radio" class="btn-check" name="delivery_type" id="mode-delivery" value="Delivery" checked>
+                        <label class="btn btn-outline-gold py-2" for="mode-delivery"><i class="fa-solid fa-truck me-2"></i>Delivery</label>
+
+                        <input type="radio" class="btn-check" name="delivery_type" id="mode-takeaway" value="Takeaway">
+                        <label class="btn btn-outline-gold py-2" for="mode-takeaway"><i class="fa-solid fa-basket-shopping me-2"></i>Takeaway</label>
+
+                        <input type="radio" class="btn-check" name="delivery_type" id="mode-dining" value="Dining">
+                        <label class="btn btn-outline-gold py-2" for="mode-dining"><i class="fa-solid fa-utensils me-2"></i>Dining</label>
+                    </div>
+                </div>
+
+                <!-- Conditional Address/Table Details -->
+                <div id="address-block" class="mb-4">
+                    <label class="small text-gray mb-1">Delivery Address</label>
+                    <textarea name="address" rows="3" class="form-control bg-transparent text-white border-gold" placeholder="Enter full delivery location details...">{{ request.user.profile.address|default:'' }}</textarea>
+                </div>
+
+                <div id="table-block" class="mb-4 d-none">
+                    <label class="small text-gray mb-1">Table Number</label>
+                    <input type="text" name="table_number" class="form-control bg-transparent text-white border-gold" placeholder="Table Number (e.g. 5, 12, VIP-1)">
+                </div>
+
+                <div class="mb-4">
+                    <label class="small text-gray mb-1">Delivery Notes / Instructions</label>
+                    <textarea name="notes" rows="2" class="form-control bg-transparent text-white border-gold" placeholder="Spice instructions, cutlery options, entry gate numbers, etc."></textarea>
+                </div>
+
+                <button type="submit" class="btn btn-gold w-100 py-3 rounded-pill fw-bold"><i class="fa-solid fa-lock me-2"></i>CONFIRM AND PROCEED TO PAYMENT</button>
+            </form>
+        </div>
+    </div>
+    
+    <div class="col-lg-5">
+        <!-- Order Summary & Coupons -->
+        <div class="glass-card p-4 border-gold text-white mb-4">
+            <h4 class="text-gold mb-3 border-bottom border-gold pb-2"><i class="fa-solid fa-receipt me-2"></i>Order Summary</h4>
+            
+            <div class="mb-4" style="max-height: 250px; overflow-y: auto;">
+                {% for item in cart.items.all %}
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <div>
+                        <h6 class="mb-0 small">{{ item.food_item.name }}</h6>
+                        <span class="text-gold small">Rs. {{ item.food_item.price }} x {{ item.quantity }}</span>
+                    </div>
+                    <span class="fw-bold">Rs. {{ item.get_total_price }}</span>
+                </div>
+                {% endfor %}
+            </div>
+
+            <!-- Coupon application widget -->
+            <div class="mb-4">
+                <label class="small text-gray mb-1">Apply Promotion Code</label>
+                <div class="input-group">
+                    <input type="text" id="coupon-input" class="form-control bg-transparent text-white border-gold" placeholder="ROYAL10" value="{{ coupon.code|default:'' }}">
+                    <button class="btn btn-outline-gold" type="button" id="apply-coupon-btn">Apply</button>
+                </div>
+                <small id="coupon-feedback" class="mt-1 d-block"></small>
+            </div>
+
+            <!-- Totals breakdown -->
+            <div class="border-top border-secondary pt-3">
+                <div class="d-flex justify-content-between mb-2">
+                    <span class="text-gray">Subtotal:</span>
+                    <span>Rs. {{ subtotal }}</span>
+                </div>
+                <div class="d-flex justify-content-between mb-2 text-success">
+                    <span>Coupon Discount:</span>
+                    <span id="txt-discount">-Rs. {{ discount }}</span>
+                </div>
+                <div class="d-flex justify-content-between mb-2">
+                    <span class="text-gray">Packing & Convenience:</span>
+                    <span>Rs. {{ packing_charge }}</span>
+                </div>
+                <div class="d-flex justify-content-between mb-2">
+                    <span class="text-gray">GST (5%):</span>
+                    <span>Rs. {{ gst|floatformat:2 }}</span>
+                </div>
+                <div class="d-flex justify-content-between border-top border-secondary pt-3 mt-3 fw-bold fs-5 text-gold">
+                    <span>Grand Total:</span>
+                    <span id="txt-total">Rs. {{ grand_total|floatformat:2 }}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Service mode toggler
+    const deliveryRadio = document.getElementById('mode-delivery');
+    const takeawayRadio = document.getElementById('mode-takeaway');
+    const diningRadio = document.getElementById('mode-dining');
+    const addressBlock = document.getElementById('address-block');
+    const tableBlock = document.getElementById('table-block');
+
+    function toggleServiceBlocks() {
+        if (deliveryRadio.checked) {
+            addressBlock.classList.remove('d-none');
+            tableBlock.classList.add('d-none');
+        } else if (diningRadio.checked) {
+            addressBlock.classList.add('d-none');
+            tableBlock.classList.remove('d-none');
+        } else { // Takeaway
+            addressBlock.classList.add('d-none');
+            tableBlock.classList.add('d-none');
+        }
+    }
+
+    deliveryRadio.addEventListener('change', toggleServiceBlocks);
+    takeawayRadio.addEventListener('change', toggleServiceBlocks);
+    diningRadio.addEventListener('change', toggleServiceBlocks);
+
+    // Apply Coupon Widget
+    const applyBtn = document.getElementById('apply-coupon-btn');
+    const couponInput = document.getElementById('coupon-input');
+    const feedback = document.getElementById('coupon-feedback');
+
+    applyBtn.addEventListener('click', () => {
+        const code = couponInput.value.trim();
+        if (!code) return;
+
+        const formData = new FormData();
+        formData.append('code', code);
+
+        fetch("{% url 'apply_coupon_ajax' %}", {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': '{{ csrf_token }}'
+            },
+            body: formData
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                feedback.className = "text-success small mt-1 d-block";
+                feedback.innerText = data.message;
+                // Reload checkout calculations to reflect new prices
+                setTimeout(() => location.reload(), 1000);
+            } else {
+                feedback.className = "text-danger small mt-1 d-block";
+                feedback.innerText = data.message;
+            }
+        });
+    });
+</script>
+{% endblock %}

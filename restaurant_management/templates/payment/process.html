@@ -1,0 +1,79 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Momo Kings | Process Payment{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6 col-lg-5">
+        <div class="glass-card p-4 border-gold text-white text-center">
+            <i class="fa-solid fa-credit-card fa-3x text-gold mb-3"></i>
+            <h3 class="text-gold mb-2">Secure Payment Gate</h3>
+            <p class="text-gray small mb-4">Complete your transactions securely. Choose from UPI, Razorpay Online checkout, or Cash on Delivery.</p>
+            
+            <div class="border-top border-bottom border-secondary py-3 my-4">
+                <span class="text-gray small d-block">ORDER TOTAL</span>
+                <span class="display-6 text-white fw-bold">Rs. {{ order.grand_total|floatformat:2 }}</span>
+            </div>
+
+            <!-- Razorpay Online Pay button -->
+            <button id="rzp-button" class="btn btn-gold w-100 py-3 rounded-pill mb-3 fw-bold">
+                <i class="fa-solid fa-shield-halved me-2"></i>PAY WITH RAZORPAY ONLINE
+            </button>
+
+            <span class="text-gray small d-block my-3">-- OR SELECT AN ALTERNATIVE OPTION --</span>
+
+            <!-- Alternative options (SIMULATION / COD) -->
+            <div class="row g-2">
+                <div class="col-6">
+                    <a href="{% url 'payment_success' order.id %}?method=COD&payment_id=COD-{{ order.id }}" class="btn btn-outline-gold w-100 py-2.5 rounded-pill small">
+                        <i class="fa-solid fa-hand-holding-dollar me-1"></i>Pay on Delivery
+                    </a>
+                </div>
+                <div class="col-6">
+                    <a href="{% url 'payment_success' order.id %}?method=UPI&payment_id=UPI-MOCK-{{ order.id }}" class="btn btn-outline-gold w-100 py-2.5 rounded-pill small">
+                        <i class="fa-brands fa-google-pay me-1"></i>Mock UPI App
+                    </a>
+                </div>
+            </div>
+
+            <p class="text-gray small mt-4 mb-0"><i class="fa-solid fa-lock me-1"></i>SSL Encryption Secured Transaction</p>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<!-- Razorpay Checkout JS script -->
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+<script>
+    const options = {
+        "key": "{{ razorpay_key }}",
+        "amount": "{{ amount_paise }}",
+        "currency": "INR",
+        "name": "MOMO KINGS",
+        "description": "Royal Dining Order #{{ order.id }}",
+        "image": "https://images.unsplash.com/photo-1534422298391-e4f8c172dddb?q=80&w=150&auto=format&fit=crop",
+        "order_id": "{{ razorpay_order_id }}",
+        "handler": function (response){
+            // Redirect to Success URL
+            location.href = "{% url 'payment_success' order.id %}?payment_id=" + response.razorpay_payment_id + "&method=Razorpay";
+        },
+        "prefill": {
+            "name": "{{ order.customer_name }}",
+            "email": "{{ order.email }}",
+            "contact": "{{ order.phone_number }}"
+        },
+        "theme": {
+            "color": "#c5a880"
+        }
+    };
+    
+    const rzp = new Razorpay(options);
+    
+    document.getElementById('rzp-button').onclick = function(e){
+        rzp.open();
+        e.preventDefault();
+    }
+</script>
+{% endblock %}

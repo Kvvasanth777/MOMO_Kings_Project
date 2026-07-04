@@ -1,0 +1,37 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Momo Kings | Royal Registration{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center my-5">
+    <div class="col-md-7 col-lg-6">
+        <div class="glass-card p-5 border-gold text-white">
+            <h3 class="text-gold text-center mb-4"><i class="fa-solid fa-user-plus me-2"></i>Create Royal Account</h3>
+            
+            <form action="{% url 'signup' %}" method="POST">
+                {% csrf_token %}
+                
+                {% for field in form %}
+                <div class="mb-3">
+                    <label class="small text-gray mb-1">{{ field.label }}</label>
+                    {{ field }}
+                    {% if field.help_text %}
+                    <small class="text-gray d-block mt-1" style="font-size: 10px;">{{ field.help_text }}</small>
+                    {% endif %}
+                    {% for error in field.errors %}
+                    <span class="text-danger small">{{ error }}</span>
+                    {% endfor %}
+                </div>
+                {% endfor %}
+                
+                <button type="submit" class="btn btn-gold w-100 py-3 rounded-pill fw-bold mt-4">REGISTER NOW</button>
+                
+                <div class="text-center small mt-3 text-gray">
+                    Already registered? <a href="{% url 'login' %}" class="text-gold fw-bold">Sign In</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

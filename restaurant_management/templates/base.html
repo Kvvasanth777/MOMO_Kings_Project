@@ -1,0 +1,335 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Momo Kings | Luxury Dining{% endblock %}</title>
+    
+    <!-- CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+    
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+
+    <!-- Loading Spinner -->
+    <div id="loader" class="spinner-container">
+        <div class="spinner-luxury"></div>
+    </div>
+
+    <!-- Luxury Header Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark navbar-luxury sticky-top">
+        <div class="container">
+            <a class="navbar-brand navbar-brand-luxury" href="{% url 'landing' %}">
+                <i class="fa-solid fa-crown me-2"></i>MOMO KINGS
+            </a>
+            
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarText" aria-controls="navbarText" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            
+            <div class="collapse navbar-collapse" id="navbarText">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                    <li class="nav-item">
+                        <a class="nav-link nav-link-luxury" href="{% url 'landing' %}">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link nav-link-luxury" href="{% url 'menu_list' %}">Menu</a>
+                    </li>
+                    {% if request.user.is_authenticated %}
+                    <li class="nav-item">
+                        <a class="nav-link nav-link-luxury" href="{% url 'profile' %}">My Account</a>
+                    </li>
+                    {% if request.user.is_staff %}
+                    <li class="nav-item">
+                        <a class="nav-link nav-link-luxury text-gold" href="{% url 'admin_dashboard' %}">Dashboard</a>
+                    </li>
+                    {% endif %}
+                    {% endif %}
+                </ul>
+                
+                <div class="d-flex align-items-center">
+                    <!-- Search Bar with Voice Search -->
+                    <form action="{% url 'menu_list' %}" method="GET" class="me-3 d-flex position-relative align-items-center">
+                        <input type="text" name="q" id="search-input" class="form-control bg-transparent text-white border-gold rounded-pill pe-5" placeholder="Search menu..." value="{{ query|default:'' }}">
+                        <button type="button" id="voice-search-btn" class="btn btn-link position-absolute end-0 text-gold bg-transparent border-0" title="Voice Search">
+                            <i class="fa-solid fa-microphone"></i>
+                        </button>
+                    </form>
+
+                    <!-- Theme Toggle -->
+                    <button class="btn btn-link text-gold me-3" id="theme-toggle" title="Toggle Theme">
+                        <i class="fa-solid fa-sun" id="theme-icon"></i>
+                    </button>
+
+                    <!-- Notifications Dropdown -->
+                    {% if request.user.is_authenticated %}
+                    <div class="dropdown me-3">
+                        <a class="text-gold position-relative" href="#" role="button" id="notifyDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="fa-regular fa-bell fs-5"></i>
+                            {% if global_notifications %}
+                            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger border border-light" style="font-size: 8px; padding: 3px 6px;">
+                                {{ global_notifications|length }}
+                            </span>
+                            {% endif %}
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end glass-card p-2 text-white" aria-labelledby="notifyDropdown" style="width: 280px; background: rgba(11,11,12,0.95);">
+                            <li class="dropdown-header text-gold border-bottom border-gold pb-2 mb-2">Notifications</li>
+                            {% if global_notifications %}
+                                {% for n in global_notifications %}
+                                <li class="small p-2 border-bottom border-secondary mb-1">{{ n.message }}</li>
+                                {% endfor %}
+                            {% else %}
+                                <li class="small p-2 text-center text-secondary">No new alerts</li>
+                            {% endif %}
+                        </ul>
+                    </div>
+                    {% endif %}
+
+                    <!-- Auth buttons -->
+                    {% if request.user.is_authenticated %}
+                    <span class="text-white me-3 small d-none d-md-inline">Welcome, <b>{{ request.user.username }}</b></span>
+                    <a href="{% url 'logout' %}" class="btn btn-outline-gold rounded-pill btn-sm">Logout</a>
+                    {% else %}
+                    <a href="{% url 'login' %}" class="btn btn-gold rounded-pill btn-sm me-2">Login</a>
+                    <a href="{% url 'signup' %}" class="btn btn-outline-gold rounded-pill btn-sm">Signup</a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content Container -->
+    <main class="py-4">
+        <div class="container">
+            {% if messages %}
+                {% for message in messages %}
+                <div class="alert alert-{% if message.tags == 'error' %}danger{% else %}{{ message.tags }}{% endif %} alert-dismissible fade show glass-card border-gold text-white" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+                {% endfor %}
+            {% endif %}
+            
+            {% block content %}{% endblock %}
+        </div>
+    </main>
+
+    <!-- Slide Cart -->
+    <div id="slide-cart" class="slide-cart">
+        <div class="slide-cart-header">
+            <h4 class="text-gold mb-0"><i class="fa-solid fa-shopping-bag me-2"></i>Your Order</h4>
+            <button class="btn-close btn-close-white" id="close-cart"></button>
+        </div>
+        <div class="slide-cart-body" id="cart-items-container">
+            <!-- Rendered dynamically via JS -->
+            <p class="text-center text-secondary py-5">Loading your selection...</p>
+        </div>
+        <div class="slide-cart-footer">
+            <div class="d-flex justify-content-between mb-2">
+                <span>Subtotal:</span>
+                <span id="cart-subtotal">Rs. 0.00</span>
+            </div>
+            <div class="d-flex justify-content-between mb-2 text-success">
+                <span>Discount:</span>
+                <span id="cart-discount">-Rs. 0.00</span>
+            </div>
+            <div class="d-flex justify-content-between mb-2">
+                <span>Packing Fee:</span>
+                <span id="cart-packing">Rs. 0.00</span>
+            </div>
+            <div class="d-flex justify-content-between mb-2">
+                <span>GST (5%):</span>
+                <span id="cart-gst">Rs. 0.00</span>
+            </div>
+            <div class="d-flex justify-content-between border-top border-secondary pt-3 mb-4 fw-bold">
+                <span class="text-gold">Grand Total:</span>
+                <span class="text-gold" id="cart-total">Rs. 0.00</span>
+            </div>
+            {% if request.user.is_authenticated %}
+            <a href="{% url 'checkout' %}" class="btn btn-gold w-100 py-3 rounded-pill text-center d-block">PROCEED TO CHECKOUT</a>
+            {% else %}
+            <a href="{% url 'login' %}" class="btn btn-gold w-100 py-3 rounded-pill text-center d-block">LOGIN TO CHECKOUT</a>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Floating Cart Trigger -->
+    <div id="cart-trigger" class="floating-cart-trigger">
+        <i class="fa-solid fa-shopping-cart"></i>
+        <span class="floating-cart-badge" id="cart-badge">{{ global_cart_count }}</span>
+    </div>
+
+    <!-- Footer -->
+    <footer class="mt-5 py-5 border-top border-gold" style="background: rgba(11, 11, 12, 0.95);">
+        <div class="container text-center">
+            <h3 class="text-gold mb-3"><i class="fa-solid fa-crown"></i> MOMO KINGS</h3>
+            <p class="text-gray mb-4">A Royal Culinary Journey Inspired by Majestic Himalayan Flavors.</p>
+            <div class="d-flex justify-content-center mb-4">
+                <a href="#" class="text-gold mx-3"><i class="fa-brands fa-facebook fa-xl"></i></a>
+                <a href="#" class="text-gold mx-3"><i class="fa-brands fa-instagram fa-xl"></i></a>
+                <a href="#" class="text-gold mx-3"><i class="fa-brands fa-twitter fa-xl"></i></a>
+            </div>
+            <p class="text-gray small">&copy; 2026 Momo Kings. Taj-Marriott Hospitality Partner. All Rights Reserved.</p>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        // Loader timeout
+        window.addEventListener('load', () => {
+            const loader = document.getElementById('loader');
+            setTimeout(() => {
+                loader.style.opacity = 0;
+                setTimeout(() => loader.style.display = 'none', 500);
+            }, 300);
+        });
+
+        // Theme Toggle Logic
+        const themeToggleBtn = document.getElementById('theme-toggle');
+        const themeIcon = document.getElementById('theme-icon');
+        const htmlTag = document.documentElement;
+
+        themeToggleBtn.addEventListener('click', () => {
+            const currentTheme = htmlTag.getAttribute('data-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            htmlTag.setAttribute('data-theme', newTheme);
+            themeIcon.className = newTheme === 'dark' ? 'fa-solid fa-sun' : 'fa-solid fa-moon';
+        });
+
+        // Slide Cart Drawer Triggers
+        const cartTrigger = document.getElementById('cart-trigger');
+        const closeCart = document.getElementById('close-cart');
+        const slideCart = document.getElementById('slide-cart');
+
+        cartTrigger.addEventListener('click', () => {
+            slideCart.classList.add('active');
+            loadCartItems();
+        });
+
+        closeCart.addEventListener('click', () => {
+            slideCart.classList.remove('active');
+        });
+
+        // Load Cart Contents dynamically
+        function loadCartItems() {
+            const container = document.getElementById('cart-items-container');
+            
+            {% if not request.user.is_authenticated %}
+            container.innerHTML = `<div class="text-center py-5"><p class="text-gray">Please login to view your cart.</p><a href="{% url 'login' %}" class="btn btn-gold btn-sm mt-2">Login</a></div>`;
+            return;
+            {% endif %}
+
+            fetch("{% url 'get_cart_ajax' %}")
+                .then(res => res.json())
+                .then(data => {
+                    if (!data.success) {
+                        container.innerHTML = `<p class="text-center text-gray py-5">Error loading cart.</p>`;
+                        return;
+                    }
+                    
+                    document.getElementById('cart-badge').innerText = data.items.reduce((acc, x) => acc + x.quantity, 0);
+
+                    if (data.items.length === 0) {
+                        container.innerHTML = `<div class="text-center py-5"><i class="fa-solid fa-shopping-basket fa-3x text-gold mb-3"></i><p class="text-gray">Your royal platter is empty.</p></div>`;
+                        document.getElementById('cart-subtotal').innerText = 'Rs. 0.00';
+                        document.getElementById('cart-discount').innerText = '-Rs. 0.00';
+                        document.getElementById('cart-packing').innerText = 'Rs. 0.00';
+                        document.getElementById('cart-gst').innerText = 'Rs. 0.00';
+                        document.getElementById('cart-total').innerText = 'Rs. 0.00';
+                        return;
+                    }
+
+                    let itemsHtml = '';
+                    data.items.forEach(item => {
+                        itemsHtml += `
+                        <div class="cart-item-row">
+                            <img src="${item.image_url}" class="cart-item-img" alt="${item.name}">
+                            <div class="flex-grow-1">
+                                <h6 class="text-white mb-1 small">${item.name}</h6>
+                                <p class="text-gold mb-0 small">Rs. ${item.price} x ${item.quantity}</p>
+                            </div>
+                            <div class="qty-control">
+                                <button class="qty-btn" onclick="updateQty(${item.id}, 'decrease')">-</button>
+                                <span class="mx-2 text-white small">${item.quantity}</span>
+                                <button class="qty-btn" onclick="updateQty(${item.id}, 'increase')">+</button>
+                            </div>
+                            <button class="btn btn-link text-danger p-0 ms-2" onclick="updateQty(${item.id}, 'remove')">
+                                <i class="fa-regular fa-trash-can"></i>
+                            </button>
+                        </div>`;
+                    });
+
+                    container.innerHTML = itemsHtml;
+                    document.getElementById('cart-subtotal').innerText = `Rs. ${parseFloat(data.subtotal).toFixed(2)}`;
+                    document.getElementById('cart-discount').innerText = `-Rs. ${parseFloat(data.discount_amount).toFixed(2)}`;
+                    document.getElementById('cart-packing').innerText = `Rs. ${parseFloat(data.packing_charge).toFixed(2)}`;
+                    document.getElementById('cart-gst').innerText = `Rs. ${parseFloat(data.gst).toFixed(2)}`;
+                    document.getElementById('cart-total').innerText = `Rs. ${parseFloat(data.grand_total).toFixed(2)}`;
+                });
+        }
+
+        // Update Item Quantities
+        function updateQty(itemId, action) {
+            const formData = new FormData();
+            formData.append('item_id', itemId);
+            formData.append('action', action);
+
+            fetch("{% url 'update_cart_ajax' %}", {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': '{{ csrf_token }}'
+                },
+                body: formData
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    loadCartItems();
+                }
+            });
+        }
+
+        // Voice Search Logic
+        const voiceBtn = document.getElementById('voice-search-btn');
+        const searchInput = document.getElementById('search-input');
+
+        if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            const recognition = new SpeechRecognition();
+            recognition.continuous = false;
+            recognition.lang = 'en-US';
+
+            voiceBtn.addEventListener('click', () => {
+                recognition.start();
+                searchInput.placeholder = "Listening...";
+                voiceBtn.innerHTML = '<i class="fa-solid fa-microphone text-danger animate-pulse"></i>';
+            });
+
+            recognition.onresult = (event) => {
+                const transcript = event.results[0][0].transcript;
+                searchInput.value = transcript;
+                searchInput.form.submit();
+            };
+
+            recognition.onerror = () => {
+                searchInput.placeholder = "Search menu...";
+                voiceBtn.innerHTML = '<i class="fa-solid fa-microphone"></i>';
+            };
+
+            recognition.onend = () => {
+                voiceBtn.innerHTML = '<i class="fa-solid fa-microphone"></i>';
+            };
+        } else {
+            voiceBtn.style.display = 'none'; // Speech recognition not supported
+        }
+    </script>
+
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

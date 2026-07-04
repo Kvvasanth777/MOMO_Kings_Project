@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Momo Kings | Verify Security Code{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center my-5">
+    <div class="col-md-6 col-lg-5">
+        <div class="glass-card p-5 border-gold text-white text-center">
+            <i class="fa-solid fa-shield-halved fa-3x text-gold mb-3"></i>
+            <h3 class="text-gold mb-2">Verify Security Code</h3>
+            <p class="text-gray small mb-4">A temporary security code has been sent. Please enter it below to verify.</p>
+            
+            <form action="{% url 'verify_otp' %}" method="POST">
+                {% csrf_token %}
+                <div class="mb-4">
+                    <input type="text" name="otp" required class="form-control bg-transparent text-white border-gold rounded-pill px-3 text-center fs-4 letter-spacing-5" placeholder="123456" maxlength="6">
+                </div>
+                
+                <button type="submit" class="btn btn-gold w-100 py-3 rounded-pill fw-bold">VERIFY SECURITY CODE</button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

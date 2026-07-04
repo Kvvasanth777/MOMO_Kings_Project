@@ -1,0 +1,117 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Momo Kings | Track Order #{{ order.id }}{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-9 col-lg-8">
+        <div class="glass-card p-4 border-gold text-white text-center mb-4">
+            <h3 class="text-gold mb-3"><i class="fa-solid fa-compass-drafting me-2"></i>Live Track Platter</h3>
+            <p class="text-gray small">Order <b>#{{ order.id }}</b> | Customer: <b>{{ order.customer_name }}</b></p>
+            
+            <!-- Live Progress Bar Visualizer -->
+            <div class="track-progress-container my-5">
+                <div class="track-progress-bar">
+                    <div class="track-progress-fill" style="width: {{ progress_percent }}%;"></div>
+                </div>
+                
+                <!-- Status steps -->
+                {% for status_step in status_flow %}
+                    {% with step_idx=forloop.counter0 %}
+                    <div class="track-step-node {% if step_idx < status_index %}completed{% elif step_idx == status_index %}active{% endif %}" 
+                         style="left: {% if step_idx == 0 %}0{% else %}{{ step_idx|add:step_idx|add:step_idx|add:step_idx|add:step_idx|add:step_idx|add:step_idx|add:step_idx|add:step_idx|add:step_idx|add:step_idx|add:step_idx|add:step_idx|add:step_idx|add:step_idx|add:step_idx }}%{% endif %};" 
+                         title="{{ status_step }}">
+                        
+                        {% if status_step == 'Pending' %}<i class="fa-regular fa-clock"></i>
+                        {% elif status_step == 'Confirmed' %}<i class="fa-solid fa-check"></i>
+                        {% elif status_step == 'Preparing' %}<i class="fa-solid fa-fire-burner"></i>
+                        {% elif status_step == 'Ready' %}<i class="fa-solid fa-bell"></i>
+                        {% elif status_step == 'Out For Delivery' %}<i class="fa-solid fa-motorcycle"></i>
+                        {% elif status_step == 'Delivered' %}<i class="fa-solid fa-house-chimney-user"></i>
+                        {% elif status_step == 'Completed' %}<i class="fa-solid fa-crown"></i>
+                        {% endif %}
+                    </div>
+                    {% endwith %}
+                {% endfor %}
+            </div>
+            
+            <div class="d-flex justify-content-between text-gray small px-2 mt-3">
+                <span>Placed</span>
+                <span>Confirmed</span>
+                <span>Cooking</span>
+                <span>Ready</span>
+                <span>On The Way</span>
+                <span>Delivered</span>
+                <span>Enjoyed</span>
+            </div>
+
+            <div class="glass-card bg-transparent p-3 my-4 border-gold text-start">
+                <div class="d-flex justify-content-between mb-2">
+                    <span>Status Label:</span>
+                    <span class="text-gold fw-bold" id="lbl-status">{{ order.status }}</span>
+                </div>
+                <div class="d-flex justify-content-between mb-2">
+                    <span>Type:</span>
+                    <span>{{ order.delivery_type }}</span>
+                </div>
+                {% if order.delivery_type == 'Dining' %}
+                <div class="d-flex justify-content-between mb-2">
+                    <span>Table Number:</span>
+                    <span>{{ order.table_number }}</span>
+                </div>
+                {% elif order.delivery_type == 'Delivery' %}
+                <div class="d-flex justify-content-between mb-2">
+                    <span>Address:</span>
+                    <span>{{ order.address }}</span>
+                </div>
+                {% endif %}
+                <div class="d-flex justify-content-between mb-2">
+                    <span>Estimated Completion:</span>
+                    <span class="text-gold">30-40 Minutes</span>
+                </div>
+            </div>
+
+            <!-- Developer Simulation Control Panel (Fully Functional) -->
+            <div class="mt-4 pt-3 border-top border-secondary text-start">
+                <h6 class="text-gold mb-3"><i class="fa-solid fa-sliders me-2"></i>Developer Simulation Panel</h6>
+                <p class="text-gray small">Since this is a sandbox environment, transition the status flow below to test live layout updates:</p>
+                <div class="d-flex flex-wrap gap-2">
+                    <button class="btn btn-sm btn-outline-gold rounded-pill px-3" onclick="simulateStatus('Confirmed')">Confirm</button>
+                    <button class="btn btn-sm btn-outline-gold rounded-pill px-3" onclick="simulateStatus('Preparing')">Cook</button>
+                    <button class="btn btn-sm btn-outline-gold rounded-pill px-3" onclick="simulateStatus('Ready')">Ready</button>
+                    <button class="btn btn-sm btn-outline-gold rounded-pill px-3" onclick="simulateStatus('Out For Delivery')">Ship</button>
+                    <button class="btn btn-sm btn-outline-gold rounded-pill px-3" onclick="simulateStatus('Delivered')">Deliver</button>
+                    <button class="btn btn-sm btn-outline-gold rounded-pill px-3" onclick="simulateStatus('Completed')">Complete</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    function simulateStatus(newStatus) {
+        const formData = new FormData();
+        formData.append('status', newStatus);
+
+        fetch(`/dashboard/order/{{ order.id }}/update/`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': '{{ csrf_token }}'
+            },
+            body: formData
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                // Reload page to reflect updated progress bar & statuses
+                location.reload();
+            } else {
+                alert(data.message);
+            }
+        });
+    }
+</script>
+{% endblock %}

@@ -1,0 +1,78 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Momo Kings | Transaction Successful{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6 col-lg-5">
+        <div class="glass-card p-5 border-gold text-white text-center">
+            <!-- Animated Crown check -->
+            <div class="d-inline-flex justify-content-center align-items-center mb-4 rounded-circle bg-gold-bright border-gold" style="width: 80px; height: 80px; box-shadow: var(--gold-glow);">
+                <i class="fa-solid fa-crown fa-3x text-dark"></i>
+            </div>
+            
+            <h2 class="text-gold mb-2">Order Confirmed!</h2>
+            <p class="text-gray small mb-4">Your imperial platter has been ordered. The kitchen is preparing to cook your royal selection.</p>
+
+            <div class="glass-card bg-transparent p-3 my-4 border-gold text-start">
+                <div class="d-flex justify-content-between mb-2">
+                    <span class="text-gray small">Order Reference:</span>
+                    <span class="small fw-bold text-white">#{{ order.id }}</span>
+                </div>
+                <div class="d-flex justify-content-between mb-2">
+                    <span class="text-gray small">Total Charged:</span>
+                    <span class="small fw-bold text-white">Rs. {{ order.grand_total|floatformat:2 }}</span>
+                </div>
+                <div class="d-flex justify-content-between mb-2">
+                    <span class="text-gray small">Service Mode:</span>
+                    <span class="small fw-bold text-gold">{{ order.delivery_type }}</span>
+                </div>
+                <div class="d-flex justify-content-between border-top border-secondary pt-2 mt-2 text-success">
+                    <span class="small">Loyalty Points Earned:</span>
+                    <span class="small fw-bold">+{{ points_earned }} Points</span>
+                </div>
+            </div>
+
+            <div class="d-grid gap-2">
+                <a href="{% url 'track_order' order.id %}" class="btn btn-gold py-3 rounded-pill fw-bold">
+                    <i class="fa-solid fa-truck-ramp-box me-2"></i>TRACK LIVE ORDER STATUS
+                </a>
+                <a href="{% url 'download_invoice' order.id %}" class="btn btn-outline-gold py-3 rounded-pill">
+                    <i class="fa-solid fa-file-pdf me-2"></i>DOWNLOAD PDF INVOICE
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<!-- Confetti JS script -->
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+<script>
+    // Run Confetti Explosion on load
+    window.addEventListener('load', () => {
+        const duration = 3 * 1000;
+        const animationEnd = Date.now() + duration;
+        const defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 1200 };
+
+        function randomInRange(min, max) {
+            return Math.random() * (max - min) + min;
+        }
+
+        const interval = setInterval(function() {
+            const timeLeft = animationEnd - Date.now();
+
+            if (timeLeft <= 0) {
+                return clearInterval(interval);
+            }
+
+            const particleCount = 50 * (timeLeft / duration);
+            // since particles fall down, animate a bit higher than random
+            confetti(Object.assign({}, defaults, { particleCount, origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 } }));
+            confetti(Object.assign({}, defaults, { particleCount, origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 } }));
+        }, 250);
+    });
+</script>
+{% endblock %}

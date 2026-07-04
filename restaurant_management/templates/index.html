@@ -1,0 +1,281 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Momo Kings | Luxury Fine Dining{% endblock %}
+
+{% block content %}
+</div> <!-- Close container to allow full-width Hero -->
+
+<!-- Luxury Hero Banner -->
+<section class="hero-luxury" style="background-image: url('https://images.unsplash.com/photo-1544025162-d76694265947?q=80&w=1600&auto=format&fit=crop');">
+    <div class="hero-overlay"></div>
+    <div class="container hero-content">
+        <div class="row">
+            <div class="col-lg-6 text-start">
+                <span class="text-gold tracking-widest text-uppercase d-block mb-3 fs-5" style="letter-spacing: 3px;">Welcome to Royalty</span>
+                <h1 class="display-3 fw-bold text-white mb-4" style="line-height: 1.1;">Himalayan Flavors, <br><span class="text-gold">Imperial Dining</span></h1>
+                <p class="lead text-gray mb-5" style="max-width: 480px;">Savor the absolute pinnacle of luxury food craftsmanship. Momo Kings offers a five-star dining experience inspired by the majestic hospitality of Taj, Marriott, and ITC Hotels.</p>
+                <div class="d-flex flex-wrap">
+                    <a href="{% url 'menu_list' %}" class="btn btn-gold me-3 mb-2 px-4 py-3 rounded-pill"><i class="fa-solid fa-utensils me-2"></i>Order Online</a>
+                    <button class="btn btn-outline-gold me-3 mb-2 px-4 py-3 rounded-pill" data-bs-toggle="modal" data-bs-target="#qrModal"><i class="fa-solid fa-qrcode me-2"></i>Scan QR Menu</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<div class="container mt-5 pt-5">
+<!-- Quick Category Section -->
+<section class="mb-5 pb-5">
+    <div class="text-center mb-5">
+        <span class="text-gold text-uppercase" style="letter-spacing: 2px;">Discover Our Selection</span>
+        <h2 class="display-5 text-white mt-2">Signature Categories</h2>
+        <div class="mx-auto bg-gold-bright" style="width: 60px; height: 2px;"></div>
+    </div>
+    
+    <div class="row g-4">
+        {% if categories %}
+            {% for cat in categories %}
+            <div class="col-md-4 col-sm-6">
+                <div class="category-card" onclick="location.href='{% url 'menu_list' %}?category={{ cat.slug }}'">
+                    <img src="{{ cat.image_url|default:'https://images.unsplash.com/photo-1534422298391-e4f8c172dddb?q=80&w=600&auto=format&fit=crop' }}" alt="{{ cat.name }}">
+                    <div class="category-card-overlay">
+                        <h4 class="text-white mb-1">{{ cat.name }}</h4>
+                        <p class="text-gold mb-0 small">Explore Royal Cuisine <i class="fa-solid fa-arrow-right ms-1"></i></p>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+            <!-- Mock Categories in case of empty DB -->
+            <div class="col-md-4 col-sm-6">
+                <div class="category-card" onclick="location.href='{% url 'menu_list' %}'">
+                    <img src="https://images.unsplash.com/photo-1534422298391-e4f8c172dddb?q=80&w=600&auto=format&fit=crop" alt="Momos">
+                    <div class="category-card-overlay">
+                        <h4 class="text-white mb-1">Imperial Momos</h4>
+                        <p class="text-gold mb-0 small">Explore Royal Cuisine <i class="fa-solid fa-arrow-right ms-1"></i></p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 col-sm-6">
+                <div class="category-card" onclick="location.href='{% url 'menu_list' %}'">
+                    <img src="https://images.unsplash.com/photo-1547928712-780c21384003?q=80&w=600&auto=format&fit=crop" alt="Soups">
+                    <div class="category-card-overlay">
+                        <h4 class="text-white mb-1">Royal Soups</h4>
+                        <p class="text-gold mb-0 small">Explore Royal Cuisine <i class="fa-solid fa-arrow-right ms-1"></i></p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 col-sm-6">
+                <div class="category-card" onclick="location.href='{% url 'menu_list' %}'">
+                    <img src="https://images.unsplash.com/photo-1513104890138-7c749659a591?q=80&w=600&auto=format&fit=crop" alt="Mojitos">
+                    <div class="category-card-overlay">
+                        <h4 class="text-white mb-1">Elite Elixirs & Mojitos</h4>
+                        <p class="text-gold mb-0 small">Explore Royal Cuisine <i class="fa-solid fa-arrow-right ms-1"></i></p>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+</section>
+
+<!-- Chef's Specials -->
+<section class="mb-5 pb-5">
+    <div class="text-center mb-5">
+        <span class="text-gold text-uppercase" style="letter-spacing: 2px;">Gastronomic Masterpieces</span>
+        <h2 class="display-5 text-white mt-2">Chef's Recommendations</h2>
+        <div class="mx-auto bg-gold-bright" style="width: 60px; height: 2px;"></div>
+    </div>
+    
+    <div class="row g-4">
+        {% if chef_specials %}
+            {% for item in chef_specials %}
+            <div class="col-lg-3 col-md-6">
+                <div class="glass-card food-card h-100 overflow-hidden">
+                    <div class="food-card-img-container">
+                        <img src="{{ item.image.url|default:item.image_url|default:'https://images.unsplash.com/photo-1534422298391-e4f8c172dddb?q=80&w=600&auto=format&fit=crop' }}" alt="{{ item.name }}">
+                        <span class="badge-veg-nonveg {% if item.veg_non_veg == 'Veg' %}badge-veg{% else %}badge-nonveg{% endif %}">
+                            {{ item.veg_non_veg }}
+                        </span>
+                    </div>
+                    <div class="p-3 d-flex flex-column flex-grow-1">
+                        <h5 class="text-white mb-2">{{ item.name }}</h5>
+                        <p class="text-gray small mb-3 flex-grow-1">{{ item.description|truncatewords:10 }}</p>
+                        <div class="d-flex justify-content-between align-items-center mt-auto border-top border-secondary pt-3">
+                            <span class="text-gold fw-bold">Rs. {{ item.price }}</span>
+                            <a href="{% url 'menu_list' %}" class="btn btn-outline-gold btn-sm px-3 rounded-pill">View Menu</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+            <!-- Mock specials -->
+            <div class="col-lg-3 col-md-6">
+                <div class="glass-card food-card h-100 overflow-hidden">
+                    <div class="food-card-img-container">
+                        <img src="https://images.unsplash.com/photo-1534422298391-e4f8c172dddb?q=80&w=600&auto=format&fit=crop" alt="Gold Plated Momos">
+                        <span class="badge-veg-nonveg badge-veg">Veg</span>
+                    </div>
+                    <div class="p-3 d-flex flex-column flex-grow-1">
+                        <h5 class="text-white mb-2">Gold Saffron Momo</h5>
+                        <p class="text-gray small mb-3 flex-grow-1">Hand-wrapped saffron dough, spiced cheese filling, gold leaves.</p>
+                        <div class="d-flex justify-content-between align-items-center mt-auto border-top border-secondary pt-3">
+                            <span class="text-gold fw-bold">Rs. 599.00</span>
+                            <a href="{% url 'menu_list' %}" class="btn btn-outline-gold btn-sm px-3 rounded-pill">View Menu</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6">
+                <div class="glass-card food-card h-100 overflow-hidden">
+                    <div class="food-card-img-container">
+                        <img src="https://images.unsplash.com/photo-1547928712-780c21384003?q=80&w=600&auto=format&fit=crop" alt="Spicy Soup">
+                        <span class="badge-veg-nonveg badge-nonveg">Non-Veg</span>
+                    </div>
+                    <div class="p-3 d-flex flex-column flex-grow-1">
+                        <h5 class="text-white mb-2">Truffle Jhol Momo</h5>
+                        <p class="text-gray small mb-3 flex-grow-1">Savory non-veg momos served in cold spicy sesame truffle soup.</p>
+                        <div class="d-flex justify-content-between align-items-center mt-auto border-top border-secondary pt-3">
+                            <span class="text-gold fw-bold">Rs. 649.00</span>
+                            <a href="{% url 'menu_list' %}" class="btn btn-outline-gold btn-sm px-3 rounded-pill">View Menu</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6">
+                <div class="glass-card food-card h-100 overflow-hidden">
+                    <div class="food-card-img-container">
+                        <img src="https://images.unsplash.com/photo-1513104890138-7c749659a591?q=80&w=600&auto=format&fit=crop" alt="Mojito">
+                        <span class="badge-veg-nonveg badge-veg">Veg</span>
+                    </div>
+                    <div class="p-3 d-flex flex-column flex-grow-1">
+                        <h5 class="text-white mb-2">Imperial Mint Elixir</h5>
+                        <p class="text-gray small mb-3 flex-grow-1">Fresh mint, lime zest, golden sugar syrup, carbonated sparkling water.</p>
+                        <div class="d-flex justify-content-between align-items-center mt-auto border-top border-secondary pt-3">
+                            <span class="text-gold fw-bold">Rs. 329.00</span>
+                            <a href="{% url 'menu_list' %}" class="btn btn-outline-gold btn-sm px-3 rounded-pill">View Menu</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6">
+                <div class="glass-card food-card h-100 overflow-hidden">
+                    <div class="food-card-img-container">
+                        <img src="https://images.unsplash.com/photo-1544025162-d76694265947?q=80&w=600&auto=format&fit=crop" alt="Chop Suey">
+                        <span class="badge-veg-nonveg badge-nonveg">Non-Veg</span>
+                    </div>
+                    <div class="p-3 d-flex flex-column flex-grow-1">
+                        <h5 class="text-white mb-2">Royal Crispy Chop Suey</h5>
+                        <p class="text-gray small mb-3 flex-grow-1">Crispy noodles, fried egg, wok fried chicken cubes, sweet-sour sauce.</p>
+                        <div class="d-flex justify-content-between align-items-center mt-auto border-top border-secondary pt-3">
+                            <span class="text-gold fw-bold">Rs. 489.00</span>
+                            <a href="{% url 'menu_list' %}" class="btn btn-outline-gold btn-sm px-3 rounded-pill">View Menu</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+</section>
+
+<!-- Why Choose Us -->
+<section class="glass-card p-5 mb-5 border-gold">
+    <div class="row align-items-center">
+        <div class="col-lg-5 mb-4 mb-lg-0 text-center text-lg-start">
+            <span class="text-gold text-uppercase" style="letter-spacing: 2px;">The Royal Standard</span>
+            <h2 class="display-6 text-white mt-2">Why Momo Kings?</h2>
+            <p class="text-gray mt-3">We have redefined casual dining to match the luxury levels of world-famous hotels. Every bite is designed, cooked, and presented with precision and imperial style.</p>
+        </div>
+        <div class="col-lg-7">
+            <div class="row g-4">
+                <div class="col-md-6">
+                    <div class="d-flex">
+                        <i class="fa-solid fa-award fa-2x text-gold me-3 mt-1"></i>
+                        <div>
+                            <h5 class="text-white">Award-Winning Chefs</h5>
+                            <p class="text-gray small">Master artisans with decades of experience in high-end culinary hotels.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="d-flex">
+                        <i class="fa-solid fa-seedling fa-2x text-gold me-3 mt-1"></i>
+                        <div>
+                            <h5 class="text-white">Organic & Rare Spices</h5>
+                            <p class="text-gray small">Exquisite ingredients imported directly from authentic Himalayan regions.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="d-flex">
+                        <i class="fa-solid fa-wine-glass fa-2x text-gold me-3 mt-1"></i>
+                        <div>
+                            <h5 class="text-white">5-Star Ambience</h5>
+                            <p class="text-gray small">Luxury interior details styled to match Ritz, Taj, and ITC properties.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="d-flex">
+                        <i class="fa-solid fa-truck-fast fa-2x text-gold me-3 mt-1"></i>
+                        <div>
+                            <h5 class="text-white">Impeccable Logistics</h5>
+                            <p class="text-gray small">Speedy, temperature-controlled, sanitized home delivery.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Luxury Contact / Maps and Hours -->
+<section class="mb-5">
+    <div class="row g-4">
+        <div class="col-md-6">
+            <div class="glass-card p-4 h-100 border-gold">
+                <h4 class="text-gold mb-4"><i class="fa-solid fa-clock me-2"></i>Royal Opening Hours</h4>
+                <ul class="list-unstyled text-white small">
+                    <li class="d-flex justify-content-between mb-2"><span>Monday - Friday</span> <span>11:00 AM - 11:30 PM</span></li>
+                    <li class="d-flex justify-content-between mb-2"><span>Saturday - Sunday</span> <span>10:30 AM - Midnight</span></li>
+                    <li class="d-flex justify-content-between border-top border-secondary pt-3 mt-3 text-gold"><span>Phone Reservations</span> <span>+91 98765 43210</span></li>
+                </ul>
+                <div class="mt-4 pt-3 border-top border-secondary">
+                    <h5 class="text-gold mb-2">Newsletter Subscription</h5>
+                    <form class="d-flex mt-2">
+                        <input type="email" class="form-control bg-transparent text-white border-gold rounded-pill-start" placeholder="Your Email">
+                        <button type="button" class="btn btn-gold rounded-pill-end px-3">Subscribe</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="glass-card p-4 h-100 border-gold overflow-hidden">
+                <h4 class="text-gold mb-4"><i class="fa-solid fa-map-location-dot me-2"></i>Imperial Location</h4>
+                <div class="ratio ratio-16x9 border border-gold rounded">
+                    <!-- Google Maps Placeholder Frame -->
+                    <iframe src="https://www.google.com/maps/embed?pb=!11m18!1m12!1m3!1d3502.137459639535!2d77.21833777598816!3d28.62562477566804!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x390cfd34771cfd47%3A0xe21f5fb3d0c9f0c2!2sConnaught%20Place%2C%20New%20Delhi%2C%20Delhi%20110001!5e0!3m2!1sen!2sin!4v1692809182390!5m2!1sen!2sin" width="600" height="450" style="border:0;" allowfullscreen="" loading="lazy"></iframe>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- QR Code Modal -->
+<div class="modal fade" id="qrModal" tabindex="-1" aria-labelledby="qrModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content glass-card border-gold p-4 text-center">
+      <div class="modal-header border-0 pb-0 justify-content-between">
+        <h5 class="modal-title text-gold" id="qrModalLabel">QR MENU SCANNER</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <p class="text-gray small mb-4">Scan this royal code to instantly access the Menu page on your mobile device.</p>
+        <img src="{% url 'generate_qrcode' %}" alt="Momo Kings Menu QR Code" class="img-fluid border border-gold rounded bg-white p-3 mx-auto shadow" style="max-width: 250px;">
+        <p class="text-gold mt-4 fw-bold small"><i class="fa-solid fa-mobile-screen-button me-2"></i>MOMO KINGS VIRTUAL MENU</p>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

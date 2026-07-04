@@ -1,0 +1,161 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Momo Kings | Royal Profile Console{% endblock %}
+
+{% block content %}
+<div class="row">
+    <!-- Profile & Loyalty points -->
+    <div class="col-lg-4 mb-4">
+        <!-- Loyalty points card -->
+        <div class="glass-card p-4 border-gold text-white text-center mb-4">
+            <div class="d-inline-flex justify-content-center align-items-center mb-3 rounded-circle bg-gold-bright border-gold" style="width: 60px; height: 60px;">
+                <i class="fa-solid fa-crown fa-xl text-dark"></i>
+            </div>
+            <h4 class="text-gold mb-1">{{ request.user.username }}</h4>
+            <span class="text-gray small text-uppercase">Imperial Member</span>
+            
+            <div class="bg-gold-bright text-dark py-2.5 px-3 rounded-pill mt-4 mb-3 fw-bold small">
+                Loyalty balance: {{ request.user.loyalty_points }} pts
+            </div>
+            <p class="text-gray small mb-0">Use points during checkout to earn dynamic discounts on your favorite momos.</p>
+        </div>
+
+        <!-- Edit Profile details -->
+        <div class="glass-card p-4 border-gold text-white">
+            <h5 class="text-gold mb-3 border-bottom border-gold pb-2"><i class="fa-solid fa-user-edit me-2"></i>Update Details</h5>
+            <form action="{% url 'profile' %}" method="POST" enctype="multipart/form-data">
+                {% csrf_token %}
+                <div class="mb-3">
+                    <label class="small text-gray mb-1">First Name</label>
+                    {{ user_form.first_name }}
+                </div>
+                <div class="mb-3">
+                    <label class="small text-gray mb-1">Last Name</label>
+                    {{ user_form.last_name }}
+                </div>
+                <div class="mb-3">
+                    <label class="small text-gray mb-1">Email</label>
+                    {{ user_form.email }}
+                </div>
+                <div class="mb-3">
+                    <label class="small text-gray mb-1">Phone Number</label>
+                    {{ user_form.phone_number }}
+                </div>
+                <div class="mb-3">
+                    <label class="small text-gray mb-1">Delivery Address</label>
+                    {{ profile_form.address }}
+                </div>
+                <div class="row g-2 mb-4">
+                    <div class="col-6">
+                        <label class="small text-gray mb-1">City</label>
+                        {{ profile_form.city }}
+                    </div>
+                    <div class="col-6">
+                        <label class="small text-gray mb-1">Postal Code</label>
+                        {{ profile_form.postal_code }}
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-gold w-100 rounded-pill py-2.5 small">SAVE CHANGES</button>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Order Logs & Wishlist -->
+    <div class="col-lg-8">
+        <!-- Order History -->
+        <div class="glass-card p-4 border-gold text-white mb-4">
+            <h5 class="text-gold mb-4 border-bottom border-gold pb-2"><i class="fa-solid fa-clock-rotate-left me-2"></i>Your Order History</h5>
+            
+            <div class="table-responsive">
+                <table class="table table-dark table-hover align-middle small mb-0">
+                    <thead>
+                        <tr class="text-gold">
+                            <th>Order ID</th>
+                            <th>Mode</th>
+                            <th>Total</th>
+                            <th>Status</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% if orders %}
+                            {% for order in orders %}
+                            <tr>
+                                <td><b>#{{ order.id }}</b></td>
+                                <td>{{ order.delivery_type }}</td>
+                                <td>Rs. {{ order.grand_total }}</td>
+                                <td>
+                                    <span class="badge {% if order.status == 'Delivered' or order.status == 'Completed' %}bg-success{% elif order.status == 'Cancelled' %}bg-danger{% else %}bg-warning text-dark{% endif %}">
+                                        {{ order.status }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <a href="{% url 'track_order' order.id %}" class="btn btn-sm btn-outline-gold me-1" title="Track"><i class="fa-solid fa-magnifying-glass"></i></a>
+                                    <a href="{% url 'download_invoice' order.id %}" class="btn btn-sm btn-outline-gold" title="Invoice"><i class="fa-solid fa-file-pdf"></i></a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        {% else %}
+                            <tr>
+                                <td colspan="5" class="text-center text-gray py-4">You have not placed any orders yet.</td>
+                            </tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Wishlist -->
+        <div class="glass-card p-4 border-gold text-white">
+            <h5 class="text-gold mb-4 border-bottom border-gold pb-2"><i class="fa-solid fa-heart me-2"></i>Royal Wishlist</h5>
+            
+            <div class="row g-3">
+                {% if wishlist_items %}
+                    {% for item in wishlist_items %}
+                    <div class="col-md-6">
+                        <div class="d-flex align-items-center bg-light-card p-2 rounded border border-secondary">
+                            <img src="{{ item.image.url|default:item.image_url|default:'https://images.unsplash.com/photo-1534422298391-e4f8c172dddb?q=80&w=80&auto=format&fit=crop' }}" class="rounded me-3" style="width: 50px; height: 50px; object-fit: cover;">
+                            <div class="flex-grow-1">
+                                <h6 class="mb-0 small text-white">{{ item.name }}</h6>
+                                <span class="text-gold small">Rs. {{ item.price }}</span>
+                            </div>
+                            <button class="btn btn-sm btn-gold rounded-pill px-2.5" onclick="addToCart({{ item.id }})"><i class="fa-solid fa-cart-plus"></i></button>
+                        </div>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="col-12 text-center text-gray py-3">Your wishlist is empty.</div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Add to Cart helper inside profile view
+    function addToCart(itemId) {
+        const formData = new FormData();
+        formData.append('food_id', itemId);
+        formData.append('quantity', 1);
+
+        fetch("{% url 'add_to_cart_ajax' %}", {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': '{{ csrf_token }}'
+            },
+            body: formData
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                document.getElementById('cart-badge').innerText = data.cart_count;
+                document.getElementById('slide-cart').classList.add('active');
+                loadCartItems();
+            }
+        });
+    }
+</script>
+{% endblock %}

@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Momo Kings | Royal Login{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center my-5">
+    <div class="col-md-6 col-lg-5">
+        <div class="glass-card p-5 border-gold text-white">
+            <h3 class="text-gold text-center mb-4"><i class="fa-solid fa-arrow-right-to-bracket me-2"></i>Sign In</h3>
+            
+            <form action="{% url 'login' %}" method="POST">
+                {% csrf_token %}
+                
+                <div class="mb-3">
+                    <label class="small text-gray mb-1">Username</label>
+                    <input type="text" name="username" required class="form-control bg-transparent text-white border-gold rounded-pill px-3" placeholder="Enter username">
+                </div>
+                
+                <div class="mb-4">
+                    <label class="small text-gray mb-1">Password</label>
+                    <input type="password" name="password" required class="form-control bg-transparent text-white border-gold rounded-pill px-3" placeholder="Enter password">
+                </div>
+                
+                <button type="submit" class="btn btn-gold w-100 py-3 rounded-pill fw-bold mb-3">SIGN IN</button>
+                
+                <div class="text-center small mt-3">
+                    <a href="{% url 'forgot_password' %}" class="text-gold me-3">Forgot Password?</a>
+                    <span class="text-gray">New customer?</span> <a href="{% url 'signup' %}" class="text-gold fw-bold">Sign Up</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
