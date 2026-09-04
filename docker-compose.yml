@@ -40,7 +40,17 @@ services:
     depends_on:
       db:
         condition: service_healthy
-
+  nginx:
+    image: nginx:alpine
+    container_name: momo-nginx
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
+      - static_volume:/app/restaurant_management/staticfiles:ro
+      - media_volume:/app/restaurant_management/media:ro
+    depends_on:
+      - web
 volumes:
   postgres_data:
   static_volume:
