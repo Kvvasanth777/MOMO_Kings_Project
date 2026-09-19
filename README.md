@@ -144,7 +144,7 @@ http://127.0.0.1:8000/
 
 👩‍💻 Developer
 
-Ramya Kaviya
+Ramya 
 
 Python Full Stack Developer
 
